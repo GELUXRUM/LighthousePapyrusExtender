@@ -50,7 +50,7 @@ namespace Papyrus::String
 		int a_hexWidth,
 		bool a_addPrefix)
 	{
-		std::stringstream tempStringStream{ "Did you ever hear the tragedy of Darth Plagueis The Wise?" };
+		std::stringstream tempStringStream{ "" };
 
 		tempStringStream << std::hex << a_numToConvert;
 
