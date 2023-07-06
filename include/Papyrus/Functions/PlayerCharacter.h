@@ -2,25 +2,6 @@
 
 namespace Papyrus::PlayerCharacter
 {
-	// this works, but the menu doesn't get updated/refreshed automatically
-	// probably requires to RE the FavoritesMenu class into CLib, but I'm lazy
-	// until then this will just stay here and won't be available in-game
-	inline void ClearFavourites(IVM& a_vm, VMStackID a_stackID, std::monostate)
-	{
-		if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
-			auto playerInventory = player->inventoryList->data;
-			for (auto currentItem : playerInventory) {
-				if (currentItem.stackData.get()->extra->IsFavorite()) {
-					currentItem.stackData.get()->extra->ClearFavorite();
-				}
-			}
-			return;
-		}
-
-		a_vm.PostError("Player is None", a_stackID, Severity::kError);
-		return;
-	}
-
 	inline uint32_t GetFollowerCount(IVM& a_vm, VMStackID a_stackID, std::monostate)
 	{
 		if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
@@ -29,6 +10,22 @@ namespace Papyrus::PlayerCharacter
 
 		a_vm.PostError("Player is None", a_stackID, Severity::kError);
 		return 0;
+	}
+
+	inline std::vector<RE::TESObjectREFR*> GetMapMarkers(IVM& a_vm, VMStackID a_stackID, std::monostate)
+	{
+		std::vector<RE::TESObjectREFR*> result;
+
+		if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
+			auto mapMarkerHandles = player->currentMapMarkers;
+			for (auto currentMapMarker : mapMarkerHandles) {
+				result.push_back(currentMapMarker.get().get());
+			}
+			return result;
+		}
+
+		a_vm.PostError("Player is None", a_stackID, Severity::kError);
+		return result;
 	}
 
 	inline bool IsInGodMode(IVM& a_vm, VMStackID a_stackID, std::monostate)
@@ -79,7 +76,6 @@ namespace Papyrus::PlayerCharacter
 
 	inline void Bind(IVM& a_vm)
 	{
-		a_vm.BindNativeMethod("Lighthouse", "ClearFavourites", ClearFavourites, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetFollowerCount", GetFollowerCount, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsInGodMode", IsInGodMode, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsImmortal", IsImmortal, true);
