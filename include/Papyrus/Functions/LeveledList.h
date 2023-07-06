@@ -26,13 +26,16 @@ namespace Papyrus::LeveledList
 
 	using LeveledObject = RE::BSScript::structure_wrapper<"Lighthouse", "LeveledObject">;
 
-	std::vector<LeveledObject> GetLeveledListObjects(IVM& a_vm, VMStackID a_stackID, std::monostate, RE::TESForm* frm)
+	inline std::vector<LeveledObject> GetLeveledListObjects(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESForm* frm)
 	{
+		std::vector<LeveledObject> res;
+
 		if (!frm) {
 			a_vm.PostError("Form is None", a_stackID, Severity::kError);
+			return res;
 		}
 
-		std::vector<LeveledObject> res;
 		auto ll = Util::GetLeveledList(frm);
 		if (ll == nullptr) {
 			return res;
@@ -99,7 +102,7 @@ namespace Papyrus::LeveledList
 	{
 		a_vm.BindNativeMethod("Lighthouse", "GetChanceNoneGlobal", GetChanceNoneGlobal, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetLeveledListChanceNone", GetLeveledListChanceNone, true);
-		a_vm.BindNativeMethod("Lighthouse", "GetLeveledListObjects", GetLeveledListObjects, true);
+		//a_vm.BindNativeMethod("Lighthouse", "GetLeveledListObjects", GetLeveledListObjects, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetUseAll", GetUseAll, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetChanceNoneGlobal", SetChanceNoneGlobal, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetLeveledListChanceNone", SetLeveledListChanceNone, true);
