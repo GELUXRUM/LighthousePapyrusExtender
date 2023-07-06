@@ -4,8 +4,8 @@ namespace Papyrus::ObjectReference
 {
 	inline std::vector<RE::TESObjectREFR*> FilterRefArrayByKeywords(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		std::vector<RE::TESObjectREFR*> a_refArray,
-		std::optional<std::vector<RE::BGSKeyword*>> a_whiteList,
-		std::optional<std::vector<RE::BGSKeyword*>> a_blackList)
+		std::vector<RE::BGSKeyword*> a_whiteList,
+		std::vector<RE::BGSKeyword*> a_blackList)
 	{
 		std::vector<RE::TESObjectREFR*> result;
 
@@ -16,27 +16,44 @@ namespace Papyrus::ObjectReference
 			return result;
 		}
 
+		bool whitelistEmpty{ true };
+		for (auto currentIndex : a_whiteList) {
+			if (currentIndex) {
+				whitelistEmpty = false;
+			}
+		}
+
+		bool blacklistEmpty{ false };
+		for (auto currentIndex : a_blackList) {
+			if (currentIndex) {
+				blacklistEmpty = false;
+			}
+		}
+
 		for (const auto currentRef : a_refArray) {
-			if (a_whiteList != std::nullopt) {
-				for (const auto requiredKW : a_whiteList.value()) {
-					if (!currentRef->HasKeyword(requiredKW)) {
-						shouldAdd = false;
-						break;
+			shouldAdd = true;
+			if (currentRef) {
+				if (!whitelistEmpty) {
+					for (const auto requiredKW : a_whiteList) {
+						if (!currentRef->HasKeyword(requiredKW)) {
+							shouldAdd = false;
+							break;
+						}
 					}
 				}
-			}
 
-			if (a_blackList != std::nullopt) {
-				for (const auto bannedKW : a_blackList.value()) {
-					if (currentRef->HasKeyword(bannedKW)) {
-						shouldAdd = false;
-						break;
+				if (!blacklistEmpty) {
+					for (const auto bannedKW : a_blackList) {
+						if (currentRef->HasKeyword(bannedKW)) {
+							shouldAdd = false;
+							break;
+						}
 					}
 				}
-			}
 
-			if (shouldAdd) {
-				result.push_back(currentRef);
+				if (shouldAdd) {
+					result.push_back(currentRef);
+				}
 			}
 		}
 		return result;
