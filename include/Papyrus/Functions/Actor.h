@@ -43,19 +43,6 @@ namespace Papyrus::Actor
 		return false;
 	}
 
-	inline void EndDialogue(IVM& a_vm, VMStackID a_stackID, std::monostate,
-		RE::Actor* a_actor)
-	{
-		if (!a_actor) {
-			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
-			return;
-		}
-
-		a_actor->EndDialogue();
-
-		return;
-	}
-
 	inline void ExitCover(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::Actor* a_actor)
 	{
@@ -831,7 +818,6 @@ namespace Papyrus::Actor
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "AreHostileActorsInRange", AreHostileActorsInRange, true);
-		a_vm.BindNativeMethod("Lighthouse", "EndDialogue", EndDialogue, true);
 		a_vm.BindNativeMethod("Lighthouse", "ExitCover", ExitCover, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetActiveEffects", GetActiveEffects, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetActorFactionsFromList", GetActorFactionsFromList, true);
