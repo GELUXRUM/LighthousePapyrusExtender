@@ -2,7 +2,6 @@
 
 namespace Papyrus::Game
 {
-	// Ported from po3's Papyrus Extender SSE
 	inline std::vector<RE::Actor*> GetActorsByProcessingLevel(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		std::int32_t a_level)
 	{
