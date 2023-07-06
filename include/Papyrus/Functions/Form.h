@@ -2,6 +2,18 @@
 
 namespace Papyrus::Form
 {
+	inline void ClearRecordFlag(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESForm* a_form,
+		std::uint32_t a_flag)
+	{
+		if (!a_form) {
+			a_vm.PostError("Form is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		a_form->formFlags &= ~a_flag;
+	}
+
 	inline RE::TESForm* GetFormByEditorID(std::monostate,
 		RE::BSFixedString a_editorID)
 	{
@@ -24,26 +36,39 @@ namespace Papyrus::Form
 		return (a_form) ? static_cast<uint32_t>(a_form->GetFormType()) : 0;
 	}
 
-	inline bool FormHasFlag(IVM& a_vm, VMStackID a_stackID, std::monostate,
+
+	inline bool IsRecordFlagSet(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESForm* a_form,
-		int a_bitShift)
+		std::uint32_t a_flag)
 	{
 		if (!a_form) {
 			a_vm.PostError("Form is None", a_stackID, Severity::kError);
 			return false;
 		}
 
-		uint32_t kFlag_BitShift = 1 << a_bitShift;
+		return (a_form->formFlags & a_flag) != 0;
+	}
 
-		return (a_form) ? (a_form->formFlags & kFlag_BitShift) != 0 : false;
+	inline void SetRecordFlag(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESForm* a_form,
+		std::uint32_t a_flag)
+	{
+		if (!a_form) {
+			a_vm.PostError("Form is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		a_form->formFlags |= a_flag;
 	}
 
 	inline void Bind(IVM& a_vm)
 	{
+		a_vm.BindNativeMethod("Lighthouse", "ClearRecordFlag", ClearRecordFlag, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetFormByEditorID", GetFormByEditorID, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetFormEditorID", GetFormEditorID, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetFormType", GetFormType, true);
-		a_vm.BindNativeMethod("Lighthouse", "FormHasFlag", FormHasFlag, true);
+		a_vm.BindNativeMethod("Lighthouse", "IsRecordFlagSet", IsRecordFlagSet, true);
+		a_vm.BindNativeMethod("Lighthouse", "SetRecordFlag", SetRecordFlag, true);
 
 		logger::info("Form functions registered.");
 	}

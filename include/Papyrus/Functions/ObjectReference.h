@@ -2,6 +2,46 @@
 
 namespace Papyrus::ObjectReference
 {
+	inline std::vector<RE::TESObjectREFR*> FilterRefArrayByKeywords(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		std::vector<RE::TESObjectREFR*> a_refArray,
+		std::optional<std::vector<RE::BGSKeyword*>> a_whiteList,
+		std::optional<std::vector<RE::BGSKeyword*>> a_blackList)
+	{
+		std::vector<RE::TESObjectREFR*> result;
+
+		bool shouldAdd{ true };
+
+		if (a_refArray.empty()) {
+			a_vm.PostError("Ref array is empty", a_stackID, Severity::kError);
+			return result;
+		}
+
+		for (const auto currentRef : a_refArray) {
+			if (a_whiteList != std::nullopt) {
+				for (const auto requiredKW : a_whiteList.value()) {
+					if (!currentRef->HasKeyword(requiredKW)) {
+						shouldAdd = false;
+						break;
+					}
+				}
+			}
+
+			if (a_blackList != std::nullopt) {
+				for (const auto bannedKW : a_blackList.value()) {
+					if (currentRef->HasKeyword(bannedKW)) {
+						shouldAdd = false;
+						break;
+					}
+				}
+			}
+
+			if (shouldAdd) {
+				result.push_back(currentRef);
+			}
+		}
+		return result;
+	}
+
 	inline float GetAnimationLength(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESObjectREFR* a_ref)
 	{
@@ -194,6 +234,33 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
+	inline std::vector<RE::BGSKeyword*> GetKeywordsRef(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESObjectREFR* a_ref)
+	{
+		std::vector<RE::BGSKeyword*> result;
+
+		if (!a_ref) {
+			a_vm.PostError("Ref is None", a_stackID, Severity::kError);
+			return result;
+		}
+
+		auto refData = a_ref->extraList->GetByType<RE::ExtraInstanceData>();
+		if (!refData) {
+			a_vm.PostError("Ref data is None", a_stackID, Severity::kError);
+			return result;
+		}
+		auto kwData = refData->data.get()->GetKeywordData();
+		if (!kwData) {
+			a_vm.PostError("KW data is None", a_stackID, Severity::kError);
+			return result;
+		}
+		int keywordAmount = kwData->GetNumKeywords();
+		for (int i = 1; i < (keywordAmount); i++) {
+			result.push_back(kwData->GetKeywordAt(i).value());
+		}
+		return result;
+	}
+
 	inline float GetWeightInContainer(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESObjectREFR* a_ref)
 	{
@@ -303,11 +370,13 @@ namespace Papyrus::ObjectReference
 
 	inline void Bind(IVM& a_vm)
 	{
+		a_vm.BindNativeMethod("Lighthouse", "FilterRefArrayByKeywords", FilterRefArrayByKeywords, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetAnimationLength", GetAnimationLength, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetAnimationTime", GetAnimationTime, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetClosestActorFromRef", GetClosestActorFromRef, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetDoorDestination", GetDoorDestination, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetInventoryItemsAsArray", GetInventoryItemsAsArray, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetKeywordsRef", GetKeywordsRef, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetWeightInContainer", GetWeightInContainer, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsInWater", IsInWater, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetDoorDestination", SetDoorDestination, true);
