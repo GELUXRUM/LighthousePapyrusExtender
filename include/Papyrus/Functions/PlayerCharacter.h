@@ -2,17 +2,7 @@
 
 namespace Papyrus::PlayerCharacter
 {
-	inline uint32_t GetFollowerCount(IVM& a_vm, VMStackID a_stackID, std::monostate)
-	{
-		if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
-			return player->teammateCount;
-		}
-
-		a_vm.PostError("Player is None", a_stackID, Severity::kError);
-		return 0;
-	}
-
-	inline std::vector<RE::TESObjectREFR*> GetMapMarkers(IVM& a_vm, VMStackID a_stackID, std::monostate)
+	inline std::vector<RE::TESObjectREFR*> GetAllMapMarkers(IVM& a_vm, VMStackID a_stackID, std::monostate)
 	{
 		std::vector<RE::TESObjectREFR*> result;
 
@@ -26,6 +16,16 @@ namespace Papyrus::PlayerCharacter
 
 		a_vm.PostError("Player is None", a_stackID, Severity::kError);
 		return result;
+	}
+
+	inline uint32_t GetFollowerCount(IVM& a_vm, VMStackID a_stackID, std::monostate)
+	{
+		if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
+			return player->teammateCount;
+		}
+
+		a_vm.PostError("Player is None", a_stackID, Severity::kError);
+		return 0;
 	}
 
 	inline bool IsInGodMode(IVM& a_vm, VMStackID a_stackID, std::monostate)
@@ -76,6 +76,7 @@ namespace Papyrus::PlayerCharacter
 
 	inline void Bind(IVM& a_vm)
 	{
+		a_vm.BindNativeMethod("Lighthouse", "GetAllMapMarkers", GetAllMapMarkers, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetFollowerCount", GetFollowerCount, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsInGodMode", IsInGodMode, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsImmortal", IsImmortal, true);
