@@ -376,7 +376,7 @@ namespace Papyrus::ObjectReference
 		a_vm.BindNativeMethod("Lighthouse", "GetClosestActorFromRef", GetClosestActorFromRef, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetDoorDestination", GetDoorDestination, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetInventoryItemsAsArray", GetInventoryItemsAsArray, true);
-		a_vm.BindNativeMethod("Lighthouse", "GetKeywordsRef", GetKeywordsRef, true);
+		//a_vm.BindNativeMethod("Lighthouse", "GetKeywordsRef", GetKeywordsRef, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetWeightInContainer", GetWeightInContainer, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsInWater", IsInWater, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetDoorDestination", SetDoorDestination, true);
