@@ -1,5 +1,6 @@
 set(SOURCES
 	include/Common.h
+	include/Papyrus/Functions/ActiveEffect.h
 	include/Papyrus/Functions/Actor.h
 	include/Papyrus/Functions/ActorBase.h
 	include/Papyrus/Functions/ActorValue.h

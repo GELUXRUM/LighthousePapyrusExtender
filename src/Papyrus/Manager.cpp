@@ -1,5 +1,6 @@
 #include "Papyrus/Manager.h"
 
+#include "Papyrus/Functions/ActiveEffect.h"
 #include "Papyrus/Functions/Actor.h"
 #include "Papyrus/Functions/ActorBase.h"
 #include "Papyrus/Functions/ActorValue.h"
@@ -36,6 +37,7 @@ namespace Papyrus
 
 		logger::info("{:*^30}", "FUNCTIONS"sv);
 
+		ActiveEffect::Bind(*a_vm);
 		Actor::Bind(*a_vm);
 		ActorBase::Bind(*a_vm);
 		ActorValue::Bind(*a_vm);
