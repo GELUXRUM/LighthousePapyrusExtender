@@ -360,9 +360,13 @@ Function SetProjectileDataValue(Projectile akProjectile, int aiIndexValue, float
 
 int Function HexToInt(string asHexString) global native
 
+int Function HexToUInt(string asHexString) global native
+
 string Function IntToBin(int aiNumToConvert, int aiBinWidth, bool abAddPrefix) global native
 
 string Function IntToHex(int aiNumToConvert, int aiHexWidth, bool abAddPrefix) global native
+
+string Function UIntToHex(int aiNumToConvert) global native
 
 int Function StringToInt(string asIntString) global native
 
