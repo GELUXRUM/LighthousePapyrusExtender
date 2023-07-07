@@ -91,6 +91,13 @@ namespace Papyrus::String
 		return outputString;
 	}
 
+	inline std::string UintToHex(std::monostate, unsigned int a_numToConvert)
+	{
+	    std::stringstream tempStringStream;
+	    tempStringStream << std::hex << std::setw(0) << std::nouppercase << a_numToConvert;
+	    return tempStringStream.str();
+	}
+
 	inline int StringToInt(std::monostate,
 		std::string a_intString)
 	{
