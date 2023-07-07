@@ -23,6 +23,26 @@ namespace Papyrus::String
 		return std::stoi(a_hexString, nullptr, 16);
 	}
 
+	inline UInt32 HexToUInt(IVM& a_vm, VMStackID a_stackID, std::monostate, std::string a_hexString)
+	{
+	    // Check that the input string is not empty
+	    if (a_hexString.empty()) {
+	        a_vm.PostError("String is empty", a_stackID, Severity::kError);
+	        return 0;
+	    }
+	
+	    // Check in case the user inputs invalid characters
+	    const std::regex hexRegex("[0-9a-fA-F]+");
+	
+	    if (!std::regex_match(a_hexString, hexRegex)) {
+	        a_vm.PostError("Invalid string", a_stackID, Severity::kError);
+	        return 0;
+	    }
+	
+	    // Convert the hexadecimal string to an unsigned integer
+	    return std::stoul(a_hexString, nullptr, 16);
+	}
+
 	inline std::string IntToBin(std::monostate,
 		int a_numToConvert,
 		int a_binWidth,
