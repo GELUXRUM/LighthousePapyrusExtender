@@ -366,6 +366,7 @@ string Function IntToBin(int aiNumToConvert, int aiBinWidth, bool abAddPrefix) g
 
 string Function IntToHex(int aiNumToConvert, int aiHexWidth, bool abAddPrefix) global native
 
+;Just the hex, no padding, and no prefix. I hope.
 string Function UIntToHex(int aiNumToConvert) global native
 
 int Function StringToInt(string asIntString) global native
