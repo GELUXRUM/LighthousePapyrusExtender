@@ -1,7 +1,46 @@
+#include "Papyrus/Utilities/FunctionArgs.h"
+#include "Papyrus/Utilities/GeneralUtils.h"
+
 #pragma once
 
 namespace Papyrus::ObjectReference
 {
+	// budget extension of ObjectReference AddItem() function to support unsigned 32-bit int values
+	// didn't wanna modify the original in case it were to break existing mods
+	inline void AddItem32(std::monostate,
+		RE::TESObjectREFR* a_ref,
+		RE::TESForm* a_form,
+		std::uint32_t a_count,
+		bool a_silent)
+	{
+		std::uint32_t intMax = std::numeric_limits<std::uint16_t>::max();
+		
+		if (a_count <= intMax) {
+			Util::CallPapyrusFunctionOnForm(a_ref, "ObjectReference", "AddItem", a_form, a_count, a_silent);
+		} else {
+			std::uint32_t stackCount = a_count / intMax;
+			std::uint32_t stackRemainder = a_count % intMax;
+
+			if (stackRemainder != 0) {
+				for (std::uint32_t i = 0; i < stackCount; i++) {
+					Util::CallPapyrusFunctionOnForm(a_ref, "ObjectReference", "AddItem", a_form, intMax, true);
+					logger::info("Iteration = {}", i);
+				}
+
+				Util::CallPapyrusFunctionOnForm(a_ref, "ObjectReference", "AddItem", a_form, stackRemainder, a_silent);
+			} else {
+				for (std::uint32_t i = 0; i < stackCount-1; i++) {
+					Util::CallPapyrusFunctionOnForm(a_ref, "ObjectReference", "AddItem", a_form, intMax, true);
+					logger::info("Iteration = {}", i);
+				}
+
+				Util::CallPapyrusFunctionOnForm(a_ref, "ObjectReference", "AddItem", a_form, intMax, a_silent);
+			}
+		}
+
+		return;
+	}
+	
 	inline std::vector<RE::TESObjectREFR*> FilterRefArrayByKeywords(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		std::vector<RE::TESObjectREFR*> a_refArray,
 		std::vector<RE::BGSKeyword*> a_whiteList,
@@ -251,30 +290,24 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	inline std::vector<RE::BGSKeyword*> GetKeywordsRef(IVM& a_vm, VMStackID a_stackID, std::monostate,
+	inline std::vector<RE::TESForm*> GetQuestItems(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESObjectREFR* a_ref)
 	{
-		std::vector<RE::BGSKeyword*> result;
+		std::vector<RE::TESForm*> result;
 
 		if (!a_ref) {
 			a_vm.PostError("Ref is None", a_stackID, Severity::kError);
 			return result;
 		}
+		
+		auto invData = a_ref->inventoryList->data;
+		
+		for (auto currentItem : invData) {
+			if (currentItem.IsQuestObject(static_cast<std::uint32_t>(currentItem.GetStackCount()))) {
+				result.push_back(RE::TESForm::GetFormByID(currentItem.object->formID));
+			}
+		}
 
-		auto refData = a_ref->extraList->GetByType<RE::ExtraInstanceData>();
-		if (!refData) {
-			a_vm.PostError("Ref data is None", a_stackID, Severity::kError);
-			return result;
-		}
-		auto kwData = refData->data.get()->GetKeywordData();
-		if (!kwData) {
-			a_vm.PostError("KW data is None", a_stackID, Severity::kError);
-			return result;
-		}
-		int keywordAmount = kwData->GetNumKeywords();
-		for (int i = 1; i < (keywordAmount); i++) {
-			result.push_back(kwData->GetKeywordAt(i).value());
-		}
 		return result;
 	}
 
@@ -387,13 +420,14 @@ namespace Papyrus::ObjectReference
 
 	inline void Bind(IVM& a_vm)
 	{
+		a_vm.BindNativeMethod("Lighthouse", "AddItem32", AddItem32, true);
 		a_vm.BindNativeMethod("Lighthouse", "FilterRefArrayByKeywords", FilterRefArrayByKeywords, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetAnimationLength", GetAnimationLength, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetAnimationTime", GetAnimationTime, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetClosestActorFromRef", GetClosestActorFromRef, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetDoorDestination", GetDoorDestination, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetInventoryItemsAsArray", GetInventoryItemsAsArray, true);
-		//a_vm.BindNativeMethod("Lighthouse", "GetKeywordsRef", GetKeywordsRef, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetQuestItems", GetQuestItems, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetWeightInContainer", GetWeightInContainer, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsInWater", IsInWater, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetDoorDestination", SetDoorDestination, true);
