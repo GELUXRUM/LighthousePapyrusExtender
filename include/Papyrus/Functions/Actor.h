@@ -815,6 +815,31 @@ namespace Papyrus::Actor
 		}
 	}
 
+	inline void StowWeapon(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		if (a_actor->currentProcess->middleHigh->equippedItems.size() == 0) {
+			return;
+		}
+
+		a_actor->currentProcess->middleHigh->equippedItemsLock.lock();
+
+		RE::EquippedItem& equippedWeapon = a_actor->currentProcess->middleHigh->equippedItems[0];
+
+		a_actor->currentProcess->middleHigh->equippedItemsLock.unlock();
+
+		if (equippedWeapon.equipIndex.index == 0) {
+			a_actor->DrawWeaponMagicHands(false);
+		}
+		
+		return;
+	}
+
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "AreHostileActorsInRange", AreHostileActorsInRange, true);
@@ -859,6 +884,7 @@ namespace Papyrus::Actor
 		a_vm.BindNativeMethod("Lighthouse", "ResetInventory", ResetInventory, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetActorAttackingDisabled", SetActorAttackingDisabled, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetDoNotShowOnStealthMeter", SetDoNotShowOnStealthMeter, true);
+		a_vm.BindNativeMethod("Lighthouse", "StowWeapon", StowWeapon, true);
 
 		logger::info("Actor functions registered.");
 	}
