@@ -27,6 +27,8 @@ set(SOURCES
 	include/Papyrus/Functions/Weapon.h
 	include/Papyrus/Functions/Weather.h
 	include/Papyrus/Utilities/ActorUtils.h
+	include/Papyrus/Utilities/FunctionArgs.h
+	include/Papyrus/Utilities/GeneralUtils.h
 	include/Papyrus/Utilities/LeveledListUtils.h
 	include/Papyrus/Manager.h
 	src/PCH.h
