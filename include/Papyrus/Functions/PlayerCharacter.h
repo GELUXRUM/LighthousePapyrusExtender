@@ -74,6 +74,17 @@ namespace Papyrus::PlayerCharacter
 		return 0;
 	}
 
+	inline void TogglePipBoyLight(IVM& a_vm, VMStackID a_stackID, std::monostate)
+	{
+		if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
+			player->TogglePipBoyLight();
+			return;
+		}
+
+		a_vm.PostError("Player is None", a_stackID, Severity::kError);
+		return;
+	}
+
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "GetAllMapMarkers", GetAllMapMarkers, true);
@@ -83,6 +94,7 @@ namespace Papyrus::PlayerCharacter
 		a_vm.BindNativeMethod("Lighthouse", "IsPipboyLightOn", IsPipboyLightOn, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsPlayerDetectedByHostile", IsPlayerDetectedByHostile, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsThirdPersonModelShown", IsThirdPersonModelShown, true);
+		a_vm.BindNativeMethod("Lighthouse", "TogglePipBoyLight", TogglePipBoyLight, true);
 
 		logger::info("PlayerCharacter functions registered.");
 	}
