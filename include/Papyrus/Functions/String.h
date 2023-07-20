@@ -19,8 +19,16 @@ namespace Papyrus::String
 			return -1;
 		}
 
-		// Convert the hexadecimal string to an integer
-		return std::stoi(a_hexString, nullptr, 16);
+		// Convert the hexadecimal string to an unsigned integer
+		uint32_t result = 0;
+		try {
+			result = std::stoul(a_hexString, nullptr, 16);
+		} catch (std::exception&) {
+			a_vm.PostError("Invalid string", a_stackID, Severity::kError);
+			return 0;
+		}
+
+		return result;
 	}
 
 	inline std::string IntToBin(std::monostate,
