@@ -74,6 +74,24 @@ namespace Papyrus::LeveledList
 		return leveledList->GetUseAll();
 	}
 
+	inline void RemoveScriptAddedLeveledObjects(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESForm* a_leveledListForm)
+	{
+		if (!a_leveledListForm) {
+			a_vm.PostError("Form is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		auto leveledList = Util::GetLeveledList(a_leveledListForm);
+		if (leveledList == nullptr) {
+			return;
+		}
+
+		leveledList->RemoveAllScriptAddedLeveledObjects();
+		
+		return;
+	}
+
 	inline void SetChanceNoneGlobal(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESLevItem* a_leveledList,
 		RE::TESGlobal* a_global)
@@ -109,6 +127,7 @@ namespace Papyrus::LeveledList
 		a_vm.BindNativeMethod("Lighthouse", "GetLeveledListChanceNone", GetLeveledListChanceNone, true);
 		//a_vm.BindNativeMethod("Lighthouse", "GetLeveledListObjects", GetLeveledListObjects, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetUseAll", GetUseAll, true);
+		a_vm.BindNativeMethod("Lighthouse", "RemoveScriptAddedLeveledObjects", RemoveScriptAddedLeveledObjects, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetChanceNoneGlobal", SetChanceNoneGlobal, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetLeveledListChanceNone", SetLeveledListChanceNone, true);
 
