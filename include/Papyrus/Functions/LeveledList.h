@@ -4,7 +4,8 @@
 
 namespace Papyrus::LeveledList
 {
-	inline RE::TESGlobal* GetChanceNoneGlobal(IVM& a_vm, VMStackID a_stackID, std::monostate, RE::TESLevItem* leveledList)
+	inline RE::TESGlobal* GetChanceNoneGlobal(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESLevItem* leveledList)
 	{
 		if (!leveledList) {
 			a_vm.PostError("LeveledList is None", a_stackID, Severity::kError);
@@ -14,7 +15,8 @@ namespace Papyrus::LeveledList
 		return leveledList->chanceGlobal;
 	}
 
-	inline int GetLeveledListChanceNone(IVM& a_vm, VMStackID a_stackID, std::monostate, RE::TESLevItem* leveledList)
+	inline int GetLeveledListChanceNone(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESLevItem* leveledList)
 	{
 		if (!leveledList) {
 			a_vm.PostError("LeveledList is None", a_stackID, Severity::kError);
@@ -61,7 +63,8 @@ namespace Papyrus::LeveledList
 		return res;
 	}
 
-	inline bool GetUseAll(IVM& a_vm, VMStackID a_stackID, std::monostate, RE::TESLevItem* leveledList)
+	inline bool GetUseAll(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESLevItem* leveledList)
 	{
 		if (!leveledList) {
 			a_vm.PostError("LeveledList is None", a_stackID, Severity::kError);
@@ -83,7 +86,9 @@ namespace Papyrus::LeveledList
 		a_leveledList->chanceGlobal = a_global;
 	}
 
-	inline void SetLeveledListChanceNone(IVM& a_vm, VMStackID a_stackID, std::monostate, RE::TESLevItem* a_leveledList, int a_chance)
+	inline void SetLeveledListChanceNone(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESLevItem* a_leveledList,
+		int a_chance)
 	{
 		if (!a_leveledList) {
 			a_vm.PostError("LeveledList is None", a_stackID, Severity::kError);
