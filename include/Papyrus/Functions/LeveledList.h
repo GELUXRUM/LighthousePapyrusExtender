@@ -29,16 +29,16 @@ namespace Papyrus::LeveledList
 	using LeveledObject = RE::BSScript::structure_wrapper<"Lighthouse", "LeveledObject">;
 
 	inline std::vector<LeveledObject> GetLeveledListObjects(IVM& a_vm, VMStackID a_stackID, std::monostate,
-		RE::TESForm* frm)
+		RE::TESForm* a_form)
 	{
 		std::vector<LeveledObject> res;
 
-		if (!frm) {
+		if (!a_form) {
 			a_vm.PostError("Form is None", a_stackID, Severity::kError);
 			return res;
 		}
 
-		auto ll = Util::GetLeveledList(frm);
+		auto ll = Util::GetLeveledList(a_form);
 		if (ll == nullptr) {
 			return res;
 		}
