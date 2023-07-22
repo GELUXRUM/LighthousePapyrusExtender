@@ -14,13 +14,7 @@ namespace Papyrus::Form
 		a_form->formFlags &= ~a_flag;
 	}
 
-	inline RE::TESForm* GetFormByEditorID(std::monostate,
-		RE::BSFixedString a_editorID)
-	{
-		return (RE::TESForm::GetFormByEditorID(a_editorID) != nullptr) ? RE::TESForm::GetFormByEditorID(a_editorID) : nullptr;
-	}
-
-	inline RE::BSFixedString GetFormEditorID(IVM& a_vm, VMStackID a_stackID, std::monostate,
+	std::uint32_t GetFormType(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESForm* a_form)
 	{
 		if (!a_form) {
@@ -28,12 +22,7 @@ namespace Papyrus::Form
 			return {};
 		}
 
-		return a_form->GetFormEditorID();
-	}
-
-	uint32_t GetFormType(std::monostate, RE::TESForm* a_form)
-	{
-		return (a_form) ? static_cast<uint32_t>(a_form->GetFormType()) : 0;
+		return static_cast<std::uint32_t>(a_form->GetFormType());
 	}
 
 
@@ -64,8 +53,6 @@ namespace Papyrus::Form
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "ClearRecordFlag", ClearRecordFlag, true);
-		a_vm.BindNativeMethod("Lighthouse", "GetFormByEditorID", GetFormByEditorID, true);
-		a_vm.BindNativeMethod("Lighthouse", "GetFormEditorID", GetFormEditorID, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetFormType", GetFormType, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsRecordFlagSet", IsRecordFlagSet, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetRecordFlag", SetRecordFlag, true);
