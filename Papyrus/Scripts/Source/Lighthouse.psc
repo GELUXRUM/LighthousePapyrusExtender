@@ -1,6 +1,5 @@
 ScriptName Lighthouse native hidden
 
-
 ; Official documentation can be found here:
 ; https://fallout.wiki/wiki/Mod:Lighthouse_Papyrus_Extender
 
@@ -101,6 +100,10 @@ Function ResetInventory(Actor akActor, bool abLeveledOnly) global native
 Function SetActorAttackingDisabled(Actor akActor, bool abValue) global native
 
 Function SetDoNotShowOnStealthMeter(Actor akActor, bool abValue) global native
+
+Function SetWeaponAmmoCount(Actor akActor, int aiCount) global native
+
+Function StowWeapon(Actor akActor) global native
 
 ; ---------------------------------------------------------------------
 ; ActorBase
@@ -228,7 +231,7 @@ Function DoNothing() global native
 
 string Function GetGameDirectory() global native
 
-; Current version: (1, 0, 0)
+; Current version: (1, 4, 0)
 int[] Function GetLighthouseVersion() global native
 
 int[] Function GetSystemTime() global native
@@ -238,10 +241,6 @@ int[] Function GetSystemTime() global native
 ; ---------------------------------------------------------------------
 
 Function ClearRecordFlag(Form akForm, int aiFlag) global native
-
-Form Function GetFormByEditorID(String asEditorID) global native
-
-string Function GetFormEditorID(Form akForm) global native
 
 int Function GetFormType(Form akForm) global native
 
@@ -308,6 +307,8 @@ float Function PoissonCumulativeProbability(float lambda, int kEvents) global na
 ; ObjectReference
 ; ---------------------------------------------------------------------
 
+Function AddItem32(ObjectReference akRef, Form akForm, int aiCount, bool abSilent) global native
+
 ObjectReference[] Function FilterRefArrayByKeywords(ObjectReference[] akRefArray, Keyword[] akWhitelist, Keyword[] akBlacklist) global native
 
 float Function GetAnimationLength(ObjectReference akRef) global native
@@ -345,6 +346,8 @@ bool Function IsPipboyLightOn() global native
 bool Function IsPlayerDetectedByHostile() global native
 
 bool Function IsThirdPersonModelShown() global native
+
+Function TogglePipBoyLight() global native
 
 ; ---------------------------------------------------------------------
 ; Projectile
