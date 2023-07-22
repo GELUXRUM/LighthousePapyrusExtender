@@ -815,6 +815,34 @@ namespace Papyrus::Actor
 		}
 	}
 
+	inline void SetWeaponAmmoCount(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor,
+		std::uint32_t a_count)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		if (a_actor->currentProcess->middleHigh->equippedItems.size() == 0) {
+			return;
+		}
+
+		a_actor->currentProcess->middleHigh->equippedItemsLock.lock();
+
+		RE::EquippedItem& equippedWeapon = a_actor->currentProcess->middleHigh->equippedItems[0];
+		RE::TESObjectWEAP::InstanceData* weaponInstance = (RE::TESObjectWEAP::InstanceData*)equippedWeapon.item.instanceData.get();
+		RE::EquippedWeaponData* weaponData = (RE::EquippedWeaponData*)equippedWeapon.data.get();
+
+		a_actor->currentProcess->middleHigh->equippedItemsLock.unlock();
+
+		if (equippedWeapon.equipIndex.index == 0 && weaponData && weaponInstance) {
+			weaponData->ammoCount = a_count;
+		}
+
+		return;
+	}
+
 	inline void StowWeapon(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::Actor* a_actor)
 	{
@@ -884,6 +912,7 @@ namespace Papyrus::Actor
 		a_vm.BindNativeMethod("Lighthouse", "ResetInventory", ResetInventory, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetActorAttackingDisabled", SetActorAttackingDisabled, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetDoNotShowOnStealthMeter", SetDoNotShowOnStealthMeter, true);
+		a_vm.BindNativeMethod("Lighthouse", "SetWeaponAmmoCount", SetWeaponAmmoCount, true);
 		a_vm.BindNativeMethod("Lighthouse", "StowWeapon", StowWeapon, true);
 
 		logger::info("Actor functions registered.");
