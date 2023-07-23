@@ -1,8 +1,8 @@
 {
-  "name": "exampleproject",
-  "version-string": "1.0.0",
-  "description": "An example project built using CommonLibF4",
-  "homepage": "https://github.com/Ryan-rsm-McKenzie/CommonLibF4",
+  "name": "LighthousePapyrusExtender",
+  "version-string": "1.4.0",
+  "description": "Papyrus extender for Fallout 4",
+  "homepage": "https://github.com/GELUXRUM/LighthousePapyrusExtender",
   "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",
