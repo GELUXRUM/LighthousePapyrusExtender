@@ -14,6 +14,7 @@ set(SOURCES
 	include/Papyrus/Functions/Faction.h
 	include/Papyrus/Functions/Form.h
 	include/Papyrus/Functions/Game.h
+	include/Papyrus/Functions/Hazard.h
 	include/Papyrus/Functions/Keyword.h
 	include/Papyrus/Functions/LeveledList.h
 	include/Papyrus/Functions/Location.h
