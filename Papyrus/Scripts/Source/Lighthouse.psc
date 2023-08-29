@@ -31,9 +31,13 @@ Actor[] Function GetActorsInRange(ObjectReference akRef, int aiMaxDistance, bool
 
 Actor[] Function GetActorsTargetingActor(Actor akActor) global native
 
+Form Function GetArmorFormOnBipedSlot(Actor akActor, int aiBipedSlot) global native
+
 Actor Function GetClosestActorWithKeyword(ObjectReference akRef, Keyword akKeyword, bool abIgnorePlayer, bool abIncludeDead) global native
 
 CombatStyle Function GetCombatStyle(Actor akActor) global native
+
+Actor[] Function GetCommandedActors(Actor akActor) global native
 
 float Function GetEncumbranceRate(Actor akActor) global native
 
@@ -51,13 +55,21 @@ int Function GetKnockState(Actor akActor) global native
 
 int Function GetLifeState(Actor akActor) global native
 
+bool Function GetOffersServices(Actor akActor) global native
+
+Package Function GetRunningPackage(Actor akActor) global native
+
 float Function GetTimeDead(Actor akActor) global native
 
 float Function GetTimeOfDeath(Actor akActor) global native
 
+ObjectReference Function GetVendorContainerRef(Actor akActor) global native
+
 Faction Function GetVendorFaction(Actor akActor) global native
 
 int Function GetWeaponAmmoCount(Actor akActor) global native
+
+bool Function HasActiveMagicEffect(Actor akActor, MagicEffect akMagicEffect) global native
 
 bool Function HasFactionFromList(Actor akActor, Faction[] akFactionList) global native
 
@@ -114,6 +126,8 @@ CombatStyle Function GetActorBaseCombatStyle(ActorBase akActorBase) global nativ
 LeveledItem Function GetDeathItem(ActorBase akActorBase) global native
 
 Faction[] Function GetFactions(ActorBase akActorBase) global native
+
+int Function GetPerkCount(ActorBase akActorBase) global native
 
 ActorBase[] Function GetRelationships(ActorBase akActorBase, AssociationType akAssocType) global native
 
@@ -201,7 +215,7 @@ Function PauseHolotape(Holotape akHolotape) global native
 
 Function PlayHolotape(Holotape akHolotape) global native
 
-Function StopHolotape(Holotape akHolotape) global native
+Function SetPerkToAdd(Book akBook, Perk akPerk) global native
 
 ; ---------------------------------------------------------------------
 ; Cell
@@ -231,10 +245,16 @@ Function DoNothing() global native
 
 string Function GetGameDirectory() global native
 
-; Current version: (1, 4, 0)
+; Current version: (1, 5, 0)
 int[] Function GetLighthouseVersion() global native
 
 int[] Function GetSystemTime() global native
+
+; ---------------------------------------------------------------------
+; Faction
+; ---------------------------------------------------------------------
+
+ObjectReference Function GetFactionVendorContainerRef(Faction akFaction) global native
 
 ; ---------------------------------------------------------------------
 ; Form
@@ -242,16 +262,79 @@ int[] Function GetSystemTime() global native
 
 Function ClearRecordFlag(Form akForm, int aiFlag) global native
 
+String Function GetFormEditorID(Form akForm) global native
+
 int Function GetFormType(Form akForm) global native
+
+bool Function IsDynamicForm(Form akForm) global native
+
+bool Function IsFormInMod(Form akForm, String asModName) global native
 
 bool Function IsRecordFlagSet(Form akForm, int aiFlag) global native
 
 Function SetRecordFlag(Form akForm, int aiFlag) global native
+
 ; ---------------------------------------------------------------------
 ; Game
 ; ---------------------------------------------------------------------
 
 Actor[] Function GetActorsByProcessingLevel(int aiProccessLevel) global native
+
+int Function GetNumActorsInHigh() global native
+
+; ---------------------------------------------------------------------
+; Hazard
+; ---------------------------------------------------------------------
+
+Function ClearHazardFlag(Hazard akHazard, int aiFlag) global native
+
+String Function GetHazardArt(Hazard akHazard) global native
+
+ImageSpaceModifier Function GetHazardIMOD(Hazard akHazard) global native
+
+float Function GetHazardIMODRadius(Hazard akHazard) global native
+
+ImpactDataSet Function GetHazardIPDS(Hazard akHazard) global native
+
+float Function GetHazardLifetime(Hazard akHazard) global native
+
+Light Function GetHazardLight(Hazard akHazard) global native
+
+int Function GetHazardLimit(Hazard akHazard) global native
+
+float Function GetHazardRadius(Hazard akHazard) global native
+
+Sound Function GetHazardSound(Hazard akHazard) global native
+
+Spell Function GetHazardSpell(Hazard akHazard) global native
+
+float Function GetHazardTargetInterval(Hazard akHazard) global native
+
+bool Function IsHazardFlagSet(Hazard akHazard, int aiFlag) global native
+
+Function SetHazardArt(Hazard akHazard, String asPath) global native
+
+Function SetHazardFlag(Hazard akHazard, int aiFlag) global native
+
+Function SetHazardIMOD(Hazard akHazard, ImageSpaceModifier akIMOD) global native
+
+Function SetHazardIMODRadius(Hazard akHazard, float afRadius) global native
+
+Function SetHazardIPDS(Hazard akHazard, ImpactDataSet akIPDS) global native
+
+Function SetHazardLifetime(Hazard akHazard, float afLifetime) global native
+
+Function SetHazardLight(Hazard akHazard, Light akLight) global native
+
+Function SetHazardLimit(Hazard akHazard, int aiLimit) global native
+
+Function SetHazardRadius(Hazard akHazard, float afRadius) global native
+
+Function SetHazardSound(Hazard akHazard, Sound akSound) global native
+
+Function SetHazardSpell(Hazard akHazard, Spell akspell) global native
+
+Function SetHazardTargetInterval(Hazard akHazard, float afInterval) global native
 
 ; ---------------------------------------------------------------------
 ; Keyword
