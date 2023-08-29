@@ -7,7 +7,7 @@ namespace Papyrus::PlayerCharacter
 		std::vector<RE::TESObjectREFR*> result;
 
 		if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
-			auto mapMarkerHandles = player->currentMapMarkers;
+			RE::BSTArray<RE::ObjectRefHandle> mapMarkerHandles = player->currentMapMarkers;
 			for (auto currentMapMarker : mapMarkerHandles) {
 				result.push_back(currentMapMarker.get().get());
 			}

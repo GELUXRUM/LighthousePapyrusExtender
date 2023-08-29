@@ -41,9 +41,16 @@ namespace Papyrus::Game
 		return result;
 	}
 
+	inline std::int32_t GetNumActorsInHigh(std::monostate)
+	{
+		const auto processLists = RE::ProcessLists::GetSingleton();
+		return processLists ? processLists->numberHighActors : -1;
+	}
+
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "GetActorsByProcessingLevel", GetActorsByProcessingLevel, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetNumActorsInHigh", GetNumActorsInHigh, true);
 
 		logger::info("Game functions registered.");
 	}

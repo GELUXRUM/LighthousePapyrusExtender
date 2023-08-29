@@ -67,7 +67,7 @@ namespace Papyrus::Actor
 			return result;
 		}
 
-		const auto effectsList = a_actor->GetActiveEffectList()->data;
+		const RE::BSTArray<RE::BSTSmartPointer<RE::ActiveEffect>> effectsList = a_actor->GetActiveEffectList()->data;
 		
 		if (effectsList.empty()) {
 			a_vm.PostError("Actor has no active effects", a_stackID, Severity::kInfo);
@@ -225,6 +225,18 @@ namespace Papyrus::Actor
 		return result;
 	}
 
+	inline RE::TESForm* GetArmorFormOnBipedSlot(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor,
+		std::uint32_t a_bipedSlot)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return nullptr;
+		}
+
+		return a_actor->biped->object[a_bipedSlot].parent.object;
+	}
+
 	inline RE::Actor* GetClosestActorWithKeyword(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESObjectREFR* a_ref,
 		RE::BGSKeyword* a_keyword,
@@ -294,6 +306,40 @@ namespace Papyrus::Actor
 		}
 
 		return a_actor->GetCombatStyle();
+	}
+
+	inline std::vector<RE::Actor*> GetCommandedActors(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor)
+	{
+		std::vector<RE::Actor*> result;
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return result;
+		}
+
+		if (const auto middleHigh = a_actor->currentProcess->middleHigh) {
+			for (auto& commandedActorData : middleHigh->commandedActors) {
+				const auto commandedActor = commandedActorData.commandedActor.get();
+				if (commandedActor) {
+					result.push_back(commandedActor.get());
+				}
+			}
+		}
+
+		return result;
+	}
+
+	inline RE::TESPackage* GetRunningPackage(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return nullptr;
+		}
+
+		auto currentProcess = a_actor->currentProcess;
+
+		return currentProcess->GetPackageThatIsRunning();
 	}
 
 	inline float GetEncumbranceRate(IVM& a_vm, VMStackID a_stackID, std::monostate,
@@ -446,6 +492,23 @@ namespace Papyrus::Actor
 		return a_actor->lifeState;
 	}
 
+	inline bool GetOffersServices(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return false;
+		}
+
+		auto vendorFaction = a_actor->vendorFaction;
+		if (!vendorFaction) {
+			a_vm.PostError("Actor has no vendor faction", a_stackID, Severity::kError);
+			return false;
+		}
+
+		return vendorFaction->vendorData.vendorSellBuyList != nullptr;
+	}
+
 	inline float GetTimeDead(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::Actor* a_actor)
 	{
@@ -479,6 +542,24 @@ namespace Papyrus::Actor
 		const auto timeOfDeath = currentProcess ? currentProcess->deathTime : 0.0f;
 
 		return timeOfDeath > 0.0f ? timeOfDeath / 24.0f : 0.0f;
+	}
+
+	inline RE::TESObjectREFR* GetVendorContainerRef(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return nullptr;
+		}
+
+		RE::TESObjectREFR* vendorContainer = a_actor->vendorFaction->vendorData.merchantContainer;
+
+		if (!vendorContainer) {
+			a_vm.PostError("Actor has no vendor container", a_stackID, Severity::kError);
+			return nullptr;
+		}
+
+		return vendorContainer;
 	}
 
 	inline RE::TESFaction* GetVendorFaction(IVM& a_vm, VMStackID a_stackID, std::monostate,
@@ -517,6 +598,42 @@ namespace Papyrus::Actor
 		}
 
 		return 0;
+	}
+
+	inline bool HasActiveMagicEffect(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor,
+		RE::EffectSetting* a_mgef)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return false;
+		}
+
+		if (!a_mgef) {
+			a_vm.PostError("MagicEffect is None", a_stackID, Severity::kError);
+			return false;
+		}
+
+		const RE::BSTArray<RE::BSTSmartPointer<RE::ActiveEffect>> effectsList = a_actor->GetActiveEffectList()->data;
+
+		if (effectsList.empty()) {
+			a_vm.PostError("Actor has no active effects", a_stackID, Severity::kInfo);
+			return false;
+		}
+
+		for (const auto& currentEffect : effectsList) {
+			if (auto mgef = currentEffect ? currentEffect->effect->effectSetting : nullptr; mgef) {
+				// ignore effect if it has any of the inactive flags
+				if (currentEffect->flags.all(RE::ActiveEffect::Flags::kInactive) || currentEffect->flags.all(RE::ActiveEffect::Flags::kDispelled)) {
+					continue;
+				// otherwise check if the mgef is the same as the one passed to the function
+				} else if (mgef == a_mgef) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	inline bool HasFactionFromList(IVM& a_vm, VMStackID a_stackID, std::monostate,
@@ -877,8 +994,11 @@ namespace Papyrus::Actor
 		a_vm.BindNativeMethod("Lighthouse", "GetActorsByVerticalDistance", GetActorsByVerticalDistance, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetActorsInRange", GetActorsInRange, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetActorsTargetingActor", GetActorsTargetingActor, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetArmorFormOnBipedSlot", GetArmorFormOnBipedSlot, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetClosestActorWithKeyword", GetClosestActorWithKeyword, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetCombatStyle", GetCombatStyle, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetCommandedActors", GetCommandedActors, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetRunningPackage", GetRunningPackage, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetEncumbranceRate", GetEncumbranceRate, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetEquippedWeight", GetEquippedWeight, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetHighActorsByRace", GetHighActorsByRace, true);
@@ -887,10 +1007,13 @@ namespace Papyrus::Actor
 		a_vm.BindNativeMethod("Lighthouse", "GetHighDeadActors", GetHighDeadActors, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetKnockState", GetKnockState, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetLifeState", GetLifeState, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetOffersServices", GetOffersServices, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetTimeDead", GetTimeDead, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetTimeOfDeath", GetTimeOfDeath, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetVendorContainerRef", GetVendorContainerRef, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetVendorFaction", GetVendorFaction, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetWeaponAmmoCount", GetWeaponAmmoCount, true);
+		a_vm.BindNativeMethod("Lighthouse", "HasActiveMagicEffect", HasActiveMagicEffect, true);
 		a_vm.BindNativeMethod("Lighthouse", "HasFactionFromList", HasFactionFromList, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsCrippled", IsCrippled, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsFleeing", IsFleeing, true);

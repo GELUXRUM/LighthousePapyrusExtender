@@ -77,6 +77,24 @@ namespace Papyrus::Book
 		return;
 	}
 
+	inline void SetPerkToAdd(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESObjectBOOK* a_book,
+		RE::BGSPerk* a_perk)
+	{
+		if (!a_book) {
+			a_vm.PostError("Book is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		if (!a_perk) {
+			a_vm.PostError("Perk is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		a_book->SetPerkToAdd(a_perk);
+		return;
+	}
+
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "GetCurrentHolotape", GetCurrentHolotape, true);

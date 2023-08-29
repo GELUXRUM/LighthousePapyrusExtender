@@ -24,14 +24,12 @@ namespace Papyrus::ObjectReference
 			if (stackRemainder != 0) {
 				for (std::uint32_t i = 0; i < stackCount; i++) {
 					Util::CallPapyrusFunctionOnForm(a_ref, "ObjectReference", "AddItem", a_form, intMax, true);
-					logger::info("Iteration = {}", i);
 				}
 
 				Util::CallPapyrusFunctionOnForm(a_ref, "ObjectReference", "AddItem", a_form, stackRemainder, a_silent);
 			} else {
 				for (std::uint32_t i = 0; i < stackCount-1; i++) {
 					Util::CallPapyrusFunctionOnForm(a_ref, "ObjectReference", "AddItem", a_form, intMax, true);
-					logger::info("Iteration = {}", i);
 				}
 
 				Util::CallPapyrusFunctionOnForm(a_ref, "ObjectReference", "AddItem", a_form, intMax, a_silent);
@@ -254,8 +252,19 @@ namespace Papyrus::ObjectReference
 					}
 				}
 
-				// legendary
+				// non-favourite
 				if (a_filterList.size() > 3 && a_filterList[2]) {
+					if (currentItem.stackData.get()->extra.get()->IsFavorite() == false) {
+						shouldAdd = true;
+					} else {
+						if (a_matchAll) {
+							continue;
+						}
+					}
+				}
+
+				// legendary
+				if (a_filterList.size() > 4 && a_filterList[3]) {
 					if (currentItem.stackData.get()->extra.get()->GetLegendaryMod() != nullptr) {
 						shouldAdd = true;
 					} else {
@@ -265,9 +274,31 @@ namespace Papyrus::ObjectReference
 					}
 				}
 
+				// non-legendary
+				if (a_filterList.size() > 5 && a_filterList[4]) {
+					if (currentItem.stackData.get()->extra.get()->GetLegendaryMod() == nullptr) {
+						shouldAdd = true;
+					} else {
+						if (a_matchAll) {
+							continue;
+						}
+					}
+				}
+
 				// multiple
-				if (a_filterList.size() > 4 && a_filterList[3]) {
+				if (a_filterList.size() > 6 && a_filterList[5]) {
 					if (currentItem.stackData.get()->GetCount() > 1) {
+						shouldAdd = true;
+					} else {
+						if (a_matchAll) {
+							continue;
+						}
+					}
+				}
+				
+				// single
+				if (a_filterList.size() > 7 && a_filterList[6]) {
+					if (currentItem.stackData.get()->GetCount() == 1) {
 						shouldAdd = true;
 					} else {
 						if (a_matchAll) {
