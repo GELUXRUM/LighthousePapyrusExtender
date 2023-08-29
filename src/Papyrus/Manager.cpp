@@ -14,6 +14,7 @@
 #include "Papyrus/Functions/Faction.h"
 #include "Papyrus/Functions/Form.h"
 #include "Papyrus/Functions/Game.h"
+#include "Papyrus/Functions/Hazard.h"
 #include "Papyrus/Functions/Keyword.h"
 #include "Papyrus/Functions/LeveledList.h"
 #include "Papyrus/Functions/Location.h"
@@ -48,9 +49,10 @@ namespace Papyrus
 		Cell::Bind(*a_vm);
 		CombatStyle::Bind(*a_vm);
 		Debug::Bind(*a_vm);
-		// Faction::Bind(*a_vm);
+		Faction::Bind(*a_vm);
 		Form::Bind(*a_vm);
 		Game::Bind(*a_vm);
+		Hazard::Bind(*a_vm);
 		Keyword::Bind(*a_vm);
 		LeveledList::Bind(*a_vm);
 		Location::Bind(*a_vm);
