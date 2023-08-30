@@ -500,13 +500,7 @@ namespace Papyrus::Actor
 			return false;
 		}
 
-		auto vendorFaction = a_actor->vendorFaction;
-		if (!vendorFaction) {
-			a_vm.PostError("Actor has no vendor faction", a_stackID, Severity::kError);
-			return false;
-		}
-
-		return vendorFaction->vendorData.vendorSellBuyList != nullptr;
+		return a_actor->GetOfferBarter();
 	}
 
 	inline float GetTimeDead(IVM& a_vm, VMStackID a_stackID, std::monostate,
@@ -581,17 +575,15 @@ namespace Papyrus::Actor
 			return 0;
 		}
 
+		RE::BSAutoLock lock{ a_actor->currentProcess->middleHigh->equippedItemsLock };
+
 		if (a_actor->currentProcess->middleHigh->equippedItems.size() == 0) {
 			return 0;
 		}
 
-		a_actor->currentProcess->middleHigh->equippedItemsLock.lock();
-
 		RE::EquippedItem& equippedWeapon = a_actor->currentProcess->middleHigh->equippedItems[0];
 		RE::TESObjectWEAP::InstanceData* weaponInstance = (RE::TESObjectWEAP::InstanceData*)equippedWeapon.item.instanceData.get();
 		RE::EquippedWeaponData* weaponData = (RE::EquippedWeaponData*)equippedWeapon.data.get();
-
-		a_actor->currentProcess->middleHigh->equippedItemsLock.unlock();
 
 		if (equippedWeapon.equipIndex.index == 0 && weaponData && weaponInstance) {
 			return weaponData->ammoCount;
@@ -748,17 +740,15 @@ namespace Papyrus::Actor
 			return false;
 		}
 
+		RE::BSAutoLock lock{ a_actor->currentProcess->middleHigh->equippedItemsLock };
+
 		if (a_actor->currentProcess->middleHigh->equippedItems.size() == 0) {
 			return false;
 		}
 
-		a_actor->currentProcess->middleHigh->equippedItemsLock.lock();
-
 		RE::EquippedItem& equippedWeapon = a_actor->currentProcess->middleHigh->equippedItems[0];
 		RE::TESObjectWEAP::InstanceData* weaponInstance = (RE::TESObjectWEAP::InstanceData*)equippedWeapon.item.instanceData.get();
 		RE::EquippedWeaponData* weaponData = (RE::EquippedWeaponData*)equippedWeapon.data.get();
-
-		a_actor->currentProcess->middleHigh->equippedItemsLock.unlock();
 
 		if (equippedWeapon.equipIndex.index == 0 && weaponData && weaponInstance) {
 			return weaponInstance->keywords->HasKeyword(a_keyword);
@@ -941,17 +931,15 @@ namespace Papyrus::Actor
 			return;
 		}
 
+		RE::BSAutoLock lock{ a_actor->currentProcess->middleHigh->equippedItemsLock };
+
 		if (a_actor->currentProcess->middleHigh->equippedItems.size() == 0) {
 			return;
 		}
 
-		a_actor->currentProcess->middleHigh->equippedItemsLock.lock();
-
 		RE::EquippedItem& equippedWeapon = a_actor->currentProcess->middleHigh->equippedItems[0];
 		RE::TESObjectWEAP::InstanceData* weaponInstance = (RE::TESObjectWEAP::InstanceData*)equippedWeapon.item.instanceData.get();
 		RE::EquippedWeaponData* weaponData = (RE::EquippedWeaponData*)equippedWeapon.data.get();
-
-		a_actor->currentProcess->middleHigh->equippedItemsLock.unlock();
 
 		if (equippedWeapon.equipIndex.index == 0 && weaponData && weaponInstance) {
 			weaponData->ammoCount = a_count;
@@ -968,15 +956,13 @@ namespace Papyrus::Actor
 			return;
 		}
 
+		RE::BSAutoLock lock{ a_actor->currentProcess->middleHigh->equippedItemsLock };
+
 		if (a_actor->currentProcess->middleHigh->equippedItems.size() == 0) {
 			return;
 		}
 
-		a_actor->currentProcess->middleHigh->equippedItemsLock.lock();
-
 		RE::EquippedItem& equippedWeapon = a_actor->currentProcess->middleHigh->equippedItems[0];
-
-		a_actor->currentProcess->middleHigh->equippedItemsLock.unlock();
 
 		if (equippedWeapon.equipIndex.index == 0) {
 			a_actor->DrawWeaponMagicHands(false);
