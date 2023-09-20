@@ -321,6 +321,7 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
+	/* IIRC doesn't work
 	inline std::vector<RE::TESForm*> GetQuestItems(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESObjectREFR* a_ref)
 	{
@@ -341,6 +342,7 @@ namespace Papyrus::ObjectReference
 
 		return result;
 	}
+	*/
 
 	inline float GetWeightInContainer(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESObjectREFR* a_ref)
@@ -458,7 +460,7 @@ namespace Papyrus::ObjectReference
 		a_vm.BindNativeMethod("Lighthouse", "GetClosestActorFromRef", GetClosestActorFromRef, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetDoorDestination", GetDoorDestination, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetInventoryItemsAsArray", GetInventoryItemsAsArray, true);
-		a_vm.BindNativeMethod("Lighthouse", "GetQuestItems", GetQuestItems, true);
+		//a_vm.BindNativeMethod("Lighthouse", "GetQuestItems", GetQuestItems, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetWeightInContainer", GetWeightInContainer, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsInWater", IsInWater, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetDoorDestination", SetDoorDestination, true);

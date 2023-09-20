@@ -2,38 +2,51 @@
 
 namespace Papyrus::Location
 {
-	inline RE::BGSLocation* GetParentLocation(IVM& a_vm, VMStackID a_stackID, std::monostate,
-		RE::BGSLocation* a_childLocation)
+	/*
+	inline void AddKeywordToLocation(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::BGSLocation* a_Location,
+		RE::BGSKeyword* a_keyword)
 	{
-		if (!a_childLocation) {
+		if (!a_Location) {
 			a_vm.PostError("Location is None", a_stackID, Severity::kError);
-			return nullptr;
+			return;
 		}
 
-		return a_childLocation->parentLoc;
+		if (!a_keyword) {
+			a_vm.PostError("Keyword is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		if (a_Location->HasKeyword(a_keyword) == false) {
+			a_Location->AddKeyword(a_keyword);
+		}
 	}
+	*/
 
-	inline void SetParentLocation(IVM& a_vm, VMStackID a_stackID, std::monostate,
-		RE::BGSLocation* a_childLocation,
-		RE::BGSLocation* a_newParentLocation)
+	inline std::vector<RE::BGSLocation*> GetChildLocations(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::BGSLocation* a_parentLocation)
 	{
-		if (!a_childLocation) {
-			a_vm.PostError("Child Location is None", a_stackID, Severity::kError);
-			return;
+		std::vector<RE::BGSLocation*> result;
+
+		if (!a_parentLocation) {
+			a_vm.PostError("Location is None", a_stackID, Severity::kError);
+			return result;
 		}
 
-		if (!a_newParentLocation) {
-			a_vm.PostError("New Parent Location is None", a_stackID, Severity::kError);
-			return;
+		if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
+			for (auto currentLocation : dataHandler->GetFormArray<RE::BGSLocation>()) {
+				if (currentLocation != a_parentLocation && currentLocation->parentLoc == a_parentLocation) {
+					result.push_back(currentLocation);
+				}
+			}
 		}
-
-		a_childLocation->parentLoc = a_newParentLocation;
+		return result;
 	}
 
 	inline void Bind(IVM& a_vm)
 	{
-		a_vm.BindNativeMethod("Lighthouse", "GetParentLocation", GetParentLocation, true);
-		a_vm.BindNativeMethod("Lighthouse", "SetParentLocation", SetParentLocation, true);
+		//a_vm.BindNativeMethod("Lighthouse", "AddKeywordToLocation", AddKeywordToLocation, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetChildLocations", GetChildLocations, true);
 
 		logger::info("Location functions registered.");
 	}

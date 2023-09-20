@@ -470,7 +470,7 @@ namespace Papyrus::Actor
 		return result;
 	}
 
-	inline int32_t GetKnockState(IVM& a_vm, VMStackID a_stackID, std::monostate,
+	inline std::int32_t GetKnockState(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -481,7 +481,7 @@ namespace Papyrus::Actor
 		return a_actor->knockState;
 	}
 
-	inline int32_t GetLifeState(IVM& a_vm, VMStackID a_stackID, std::monostate,
+	inline std::int32_t GetLifeState(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::Actor* a_actor)
 	{
 		if (!a_actor) {
@@ -567,6 +567,31 @@ namespace Papyrus::Actor
 		return a_actor->vendorFaction;
 	}
 
+	inline int GetWeaponAmmoCapacity(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return 0;
+		}
+
+		RE::BSAutoLock lock{ a_actor->currentProcess->middleHigh->equippedItemsLock };
+
+		if (a_actor->currentProcess->middleHigh->equippedItems.size() == 0) {
+			return 0;
+		}
+
+		RE::EquippedItem& equippedWeapon = a_actor->currentProcess->middleHigh->equippedItems[0];
+		RE::TESObjectWEAP::InstanceData* weaponInstance = (RE::TESObjectWEAP::InstanceData*)equippedWeapon.item.instanceData.get();
+		RE::EquippedWeaponData* weaponData = (RE::EquippedWeaponData*)equippedWeapon.data.get();
+
+		if (equippedWeapon.equipIndex.index == 0 && weaponData && weaponInstance) {
+			return weaponInstance->ammoCapacity;
+		}
+
+		return 0;
+	}
+
 	inline int GetWeaponAmmoCount(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::Actor* a_actor)
 	{
@@ -587,6 +612,74 @@ namespace Papyrus::Actor
 
 		if (equippedWeapon.equipIndex.index == 0 && weaponData && weaponInstance) {
 			return weaponData->ammoCount;
+		}
+
+		return 0;
+	}
+
+	inline RE::TESAmmo* GetWeaponAmmoType(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return nullptr;
+		}
+
+		RE::BSAutoLock lock{ a_actor->currentProcess->middleHigh->equippedItemsLock };
+
+		if (a_actor->currentProcess->middleHigh->equippedItems.size() == 0) {
+			return nullptr;
+		}
+
+		RE::EquippedItem& equippedWeapon = a_actor->currentProcess->middleHigh->equippedItems[0];
+		RE::TESObjectWEAP::InstanceData* weaponInstance = (RE::TESObjectWEAP::InstanceData*)equippedWeapon.item.instanceData.get();
+		RE::EquippedWeaponData* weaponData = (RE::EquippedWeaponData*)equippedWeapon.data.get();
+
+		if (equippedWeapon.equipIndex.index == 0 && weaponData && weaponInstance) {
+			return weaponInstance->ammo;
+		}
+
+		return nullptr;
+	}
+
+	inline int GetWeaponMagCount(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor,
+		bool a_roundDown)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return 0;
+		}
+
+		RE::BSAutoLock lock{ a_actor->currentProcess->middleHigh->equippedItemsLock };
+
+		if (a_actor->currentProcess->middleHigh->equippedItems.size() == 0) {
+			return 0;
+		}
+
+		RE::EquippedItem& equippedWeapon = a_actor->currentProcess->middleHigh->equippedItems[0];
+		RE::TESObjectWEAP::InstanceData* weaponInstance = (RE::TESObjectWEAP::InstanceData*)equippedWeapon.item.instanceData.get();
+		RE::EquippedWeaponData* weaponData = (RE::EquippedWeaponData*)equippedWeapon.data.get();
+
+		if (equippedWeapon.equipIndex.index == 0 && weaponData && weaponInstance) {
+			RE::TESForm* ammoForm = (RE::TESForm*)weaponInstance->ammo;
+			for (RE::BGSInventoryItem inventoryItem : a_actor->inventoryList->data) {
+				if (inventoryItem.object == ammoForm) {
+					std::uint32_t ammoCapacity = weaponInstance->ammoCapacity;
+					std::uint32_t itemCount = inventoryItem.GetCount();
+					float result = static_cast<float>(itemCount) / static_cast<float>(ammoCapacity);
+					if (result == static_cast<int>(result)) {
+						return static_cast<int>(result);
+					} else {
+						if (a_roundDown) {
+							return static_cast<int>(std::floor(result));
+						} else {
+							return static_cast<int>(std::ceil(result));
+						}
+					}
+				}
+			}
+				
 		}
 
 		return 0;
@@ -998,7 +1091,10 @@ namespace Papyrus::Actor
 		a_vm.BindNativeMethod("Lighthouse", "GetTimeOfDeath", GetTimeOfDeath, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetVendorContainerRef", GetVendorContainerRef, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetVendorFaction", GetVendorFaction, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetWeaponAmmoCapacity", GetWeaponAmmoCapacity, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetWeaponAmmoCount", GetWeaponAmmoCount, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetWeaponAmmoType", GetWeaponAmmoType, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetWeaponMagCount", GetWeaponMagCount, true);
 		a_vm.BindNativeMethod("Lighthouse", "HasActiveMagicEffect", HasActiveMagicEffect, true);
 		a_vm.BindNativeMethod("Lighthouse", "HasFactionFromList", HasFactionFromList, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsCrippled", IsCrippled, true);
