@@ -17,6 +17,7 @@ set(SOURCES
 	include/Papyrus/Functions/Hazard.h
 	include/Papyrus/Functions/Keyword.h
 	include/Papyrus/Functions/LeveledList.h
+	include/Papyrus/Functions/Light.h
 	include/Papyrus/Functions/Location.h
 	include/Papyrus/Functions/Math.h
 	include/Papyrus/Functions/ObjectReference.h

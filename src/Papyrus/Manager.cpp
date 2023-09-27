@@ -17,6 +17,7 @@
 #include "Papyrus/Functions/Hazard.h"
 #include "Papyrus/Functions/Keyword.h"
 #include "Papyrus/Functions/LeveledList.h"
+#include "Papyrus/Functions/Light.h"
 #include "Papyrus/Functions/Location.h"
 #include "Papyrus/Functions/Math.h"
 #include "Papyrus/Functions/ObjectReference.h"
@@ -55,6 +56,7 @@ namespace Papyrus
 		Hazard::Bind(*a_vm);
 		Keyword::Bind(*a_vm);
 		LeveledList::Bind(*a_vm);
+		//Light::Bind(*a_vm);
 		Location::Bind(*a_vm);
 		Math::Bind(*a_vm);
 		ObjectReference::Bind(*a_vm);
