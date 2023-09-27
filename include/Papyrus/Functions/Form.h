@@ -34,6 +34,17 @@ namespace Papyrus::Form
 		return (thisContainer->flags & a_flag) != 0;
 	}
 
+	inline RE::BSTArray<RE::TESForm*> GetFormArrayByType(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		std::uint32_t a_formType)
+	{
+		if (a_formType <= 159) {
+			return RE::TESDataHandler::GetSingleton()->formArrays[a_formType];
+		}
+
+		a_vm.PostError("Incorrect Form type value passed", a_stackID, Severity::kError);
+		return {};
+	}
+
 	inline std::uint32_t GetFormType(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESForm* a_form)
 	{
@@ -71,43 +82,31 @@ namespace Papyrus::Form
 		if (auto dataHandler = RE::TESDataHandler::GetSingleton(); dataHandler) {
 			auto cobjArray = dataHandler->GetFormArray<RE::BGSConstructibleObject>();
 			for (auto thisCOBJ : cobjArray) {
-				if (thisCOBJ->createdItem == a_form) {
-					// if keyword is not nullptr we check if it's present on the form and 
-					if (a_categoryKeyword != nullptr && thisCOBJ->filterKeywords.HasKeyword(a_categoryKeyword) == false) {
-						continue;
-					} else if (a_workshopKeyword != nullptr && thisCOBJ->benchKeyword != a_workshopKeyword) {
-						continue;
-					}
+				if (a_categoryKeyword != nullptr && thisCOBJ->filterKeywords.HasKeyword(a_categoryKeyword) == false) {
+					continue;
+				} else if (a_workshopKeyword != nullptr && thisCOBJ->benchKeyword != a_workshopKeyword) {
+					continue;
+				}
 
-					result.push_back(thisCOBJ);
+				// the record may be a FormList that contains a_form
+				if (thisCOBJ->createdItem != nullptr) {
+					if (RE::BGSListForm* formList = thisCOBJ->createdItem->As<RE::BGSListForm>(); formList) {
+						for (auto listElement : formList->arrayOfForms) {
+							if (listElement == a_form) {
+								result.push_back(thisCOBJ);
+								break;
+							}
+						}
+					} else {
+						if (thisCOBJ->createdItem == a_form) {
+							result.push_back(thisCOBJ);
+						}
+					}
 				}
 			}
 		}
 
 		return result;
-	}
-
-	inline RE::BGSKeyword* GetWorkbenchKeyword(IVM& a_vm, VMStackID a_stackID, std::monostate,
-		RE::TESForm* a_form)
-	{
-		if (!a_form) {
-			a_vm.PostError("Form is None", a_stackID, Severity::kError);
-			return nullptr;
-		}
-
-		if (a_form->GetFormType() != RE::ENUM_FORM_ID::kCOBJ) {
-			a_vm.PostError("Form is not of COBJ type", a_stackID, Severity::kError);
-			return nullptr;
-		}
-
-		RE::BGSKeyword* workshopKW = ((RE::BGSConstructibleObject*)a_form)->benchKeyword;
-
-		if (!workshopKW) {
-			a_vm.PostError("COBJ has no Workbench Keyword", a_stackID, Severity::kError);
-			return nullptr;
-		} else {
-			return workshopKW;
-		}
 	}
 
 	/*
@@ -180,10 +179,10 @@ namespace Papyrus::Form
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "ClearRecordFlag", ClearRecordFlag, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetFormArrayByType", GetFormArrayByType, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetFormType", GetFormType, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetFormEditorID", GetFormEditorID, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetParentCOBJs", GetParentCOBJs, true);
-		a_vm.BindNativeMethod("Lighthouse", "GetWorkbenchKeyword", GetWorkbenchKeyword, true);
 		//a_vm.BindNativeMethod("Lighthouse", "GetMagicEffectAssociatedForm", GetMagicEffectAssociatedForm, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsContainerFlagSet", IsContainerFlagSet, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsDynamicForm", IsDynamicForm, true);
