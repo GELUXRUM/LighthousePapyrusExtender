@@ -546,14 +546,17 @@ namespace Papyrus::Actor
 			return nullptr;
 		}
 
-		RE::TESObjectREFR* vendorContainer = a_actor->vendorFaction->vendorData.merchantContainer;
-
-		if (!vendorContainer) {
-			a_vm.PostError("Actor has no vendor container", a_stackID, Severity::kError);
+		if (RE::TESFaction* vendorFaction = a_actor->vendorFaction; vendorFaction) {
+			if (RE::TESObjectREFR* vendorContainer = a_actor->vendorFaction->vendorData.merchantContainer; vendorContainer) {
+				return vendorContainer;
+			} else {
+				a_vm.PostError("Actor has no vendor container", a_stackID, Severity::kError);
+				return nullptr;
+			}
+		} else {
+			a_vm.PostError("Actor has no vendor faction", a_stackID, Severity::kError);
 			return nullptr;
 		}
-
-		return vendorContainer;
 	}
 
 	inline RE::TESFaction* GetVendorFaction(IVM& a_vm, VMStackID a_stackID, std::monostate,
