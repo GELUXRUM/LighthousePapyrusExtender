@@ -89,12 +89,42 @@ namespace Papyrus::String
 		return outputInt;
 	}
 
+	std::string ToLower(std::monostate,
+		const std::string a_str)
+	{
+		std::string lowercaseStr;
+
+		size_t length = std::strlen(a_str.c_str());
+
+		for (size_t i = 0; i < length; ++i) {
+			lowercaseStr += static_cast<char>(std::tolower(static_cast<unsigned char>(a_str.c_str()[i])));
+		}
+
+		return lowercaseStr;
+	}
+
+	std::string ToUpper(std::monostate,
+		const std::string a_str)
+	{
+		std::string uppercaseStr;
+
+		size_t length = std::strlen(a_str.c_str());
+
+		for (size_t i = 0; i < length; ++i) {
+			uppercaseStr += static_cast<char>(std::toupper(static_cast<unsigned char>(a_str.c_str()[i])));
+		}
+
+		return uppercaseStr;
+	}
+
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "HexToInt", HexToInt, true);
 		a_vm.BindNativeMethod("Lighthouse", "IntToBin", IntToBin, true);
 		a_vm.BindNativeMethod("Lighthouse", "IntToHex", IntToHex, true);
 		a_vm.BindNativeMethod("Lighthouse", "StringToInt", StringToInt, true);
+		a_vm.BindNativeMethod("Lighthouse", "ToLower", ToLower, true);
+		a_vm.BindNativeMethod("Lighthouse", "ToUpper", ToUpper, true);
 
 		logger::info("String functions registered.");
 	}
