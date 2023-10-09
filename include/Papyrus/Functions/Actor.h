@@ -827,12 +827,42 @@ namespace Papyrus::Actor
 		return a_actor->IsJumping();
 	}
 
+	inline bool IsKeywordOnArmorIndex(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor,
+		RE::BGSKeyword* a_keyword,
+		std::uint32_t a_indexSlot)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return false;
+		}
+
+		if (!a_keyword) {
+			a_vm.PostError("Keyword is None", a_stackID, Severity::kError);
+			return false;
+		}
+		
+		auto armorAtSlot = a_actor->biped->object[a_indexSlot].parent.object;
+
+		if (armorAtSlot) {
+			return a_actor->biped->object[a_indexSlot].parent.instanceData.get()->GetKeywordData()->HasKeyword(a_keyword);
+		} else {
+			a_vm.PostError("Nothing equipped at provided index", a_stackID, Severity::kError);
+			return false;
+		}
+	}
+
 	inline bool IsKeywordOnWeapon(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::Actor* a_actor,
 		RE::BGSKeyword* a_keyword)
 	{
 		if (!a_actor) {
 			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return false;
+		}
+
+		if (!a_keyword) {
+			a_vm.PostError("Keyword is None", a_stackID, Severity::kError);
 			return false;
 		}
 
@@ -1106,6 +1136,7 @@ namespace Papyrus::Actor
 		a_vm.BindNativeMethod("Lighthouse", "IsFollowingActor", IsFollowingActor, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsInKillMove", IsInKillMove, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsJumping", IsJumping, true);
+		a_vm.BindNativeMethod("Lighthouse", "IsKeywordOnArmorIndex", IsKeywordOnArmorIndex, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsKeywordOnWeapon", IsKeywordOnWeapon, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsPathing", IsPathing, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsPathingComplete", IsPathingComplete, true);
