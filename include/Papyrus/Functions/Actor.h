@@ -112,6 +112,17 @@ namespace Papyrus::Actor
 		return result;
 	}
 
+	inline int GetActorGunState(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return -1;
+		}
+
+		return static_cast<std::uint32_t>(a_actor->gunState);
+	}
+
 	inline std::vector<RE::Actor*> GetActorsByVerticalDistance(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESObjectREFR* a_ref,
 		std::uint32_t a_upDistance,
@@ -1103,6 +1114,7 @@ namespace Papyrus::Actor
 		a_vm.BindNativeMethod("Lighthouse", "ExitCover", ExitCover, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetActiveEffects", GetActiveEffects, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetActorFactionsFromList", GetActorFactionsFromList, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetActorGunState", GetActorGunState, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetActorsByVerticalDistance", GetActorsByVerticalDistance, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetActorsInRange", GetActorsInRange, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetActorsTargetingActor", GetActorsTargetingActor, true);
