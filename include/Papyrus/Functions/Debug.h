@@ -58,7 +58,7 @@ namespace Papyrus::Debug
 
 	inline std::vector<int> GetLighthouseVersion(std::monostate)
 	{
-		std::vector<int> versionArray = { 1, 7, 1 };
+		std::vector<int> versionArray = { 1, 11, 1 };
 		return versionArray;
 	}
 
