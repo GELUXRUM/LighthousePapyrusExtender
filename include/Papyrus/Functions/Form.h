@@ -14,9 +14,8 @@ namespace Papyrus::Form
 		a_form->formFlags &= ~a_flag;
 	}
 
-	inline bool IsContainerFlagSet(IVM& a_vm, VMStackID a_stackID, std::monostate,
-		RE::TESForm* a_form,
-		std::uint32_t a_flag)
+	inline std::int8_t GetContainerFlags(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESForm* a_form)
 	{
 		if (!a_form) {
 			a_vm.PostError("Form is None", a_stackID, Severity::kError);
@@ -30,10 +29,10 @@ namespace Papyrus::Form
 
 		auto thisContainer = (RE::TESObjectCONT*)a_form;
 
-		//(a_form->formFlags & a_flag) != 0
-		return (thisContainer->flags & a_flag) != 0;
+		return thisContainer->data.contFlags;
 	}
 
+	/*
 	inline RE::BSTArray<RE::TESForm*> GetFormArrayByType(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		std::uint32_t a_formType)
 	{
@@ -43,6 +42,18 @@ namespace Papyrus::Form
 
 		a_vm.PostError("Incorrect Form type value passed", a_stackID, Severity::kError);
 		return {};
+	}
+	*/
+
+	inline RE::TESForm* GetFormByEditorID(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		std::string a_editorID)
+	{
+		if (a_editorID.empty()) {
+			a_vm.PostError("Cannot pass an empty string", a_stackID, Severity::kError);
+			return nullptr;
+		}
+
+		return RE::TESForm::GetFormByEditorID(a_editorID);
 	}
 
 	inline std::uint32_t GetFormType(IVM& a_vm, VMStackID a_stackID, std::monostate,
@@ -65,6 +76,17 @@ namespace Papyrus::Form
 		}
 
 		return a_form->GetFormEditorID();
+	}
+
+	float GetFormWeight(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESForm* a_form)
+	{
+		if (!a_form) {
+			a_vm.PostError("Form is None", a_stackID, Severity::kError);
+			return 0.0f;
+		}
+
+		return RE::TESWeightForm::GetFormWeight(a_form, nullptr);
 	}
 
 	inline std::vector<RE::BGSConstructibleObject*> GetParentCOBJs(IVM& a_vm, VMStackID a_stackID, std::monostate,
@@ -90,6 +112,7 @@ namespace Papyrus::Form
 
 				// the record may be a FormList that contains a_form
 				if (thisCOBJ->createdItem != nullptr) {
+					// if a_form is the form for the
 					if (RE::BGSListForm* formList = thisCOBJ->createdItem->As<RE::BGSListForm>(); formList) {
 						for (auto listElement : formList->arrayOfForms) {
 							if (listElement == a_form) {
@@ -97,11 +120,13 @@ namespace Papyrus::Form
 								break;
 							}
 						}
-					} else {
-						if (thisCOBJ->createdItem == a_form) {
-							result.push_back(thisCOBJ);
-						}
 					}
+
+					// a_form might be a FormList so we need a separate check to not skip it
+					if (thisCOBJ->createdItem == a_form) {
+						result.push_back(thisCOBJ);
+					}
+
 				}
 			}
 		}
@@ -123,6 +148,25 @@ namespace Papyrus::Form
 		return (associatedForm == nullptr) ? nullptr : associatedForm;
 	}
 	*/
+
+	inline bool IsContainerFlagSet(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESForm* a_form,
+		std::uint32_t a_flag)
+	{
+		if (!a_form) {
+			a_vm.PostError("Form is None", a_stackID, Severity::kError);
+			return false;
+		}
+
+		if (a_form->GetFormType() != RE::ENUM_FORM_ID::kCONT) {
+			a_vm.PostError("Form is not of CONT type", a_stackID, Severity::kError);
+			return false;
+		}
+
+		auto thisContainer = (RE::TESObjectCONT*)a_form;
+
+		return (thisContainer->data.contFlags & a_flag) != 0;
+	}
 
 	inline bool IsDynamicForm(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESForm* a_form)
@@ -179,9 +223,12 @@ namespace Papyrus::Form
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "ClearRecordFlag", ClearRecordFlag, true);
-		a_vm.BindNativeMethod("Lighthouse", "GetFormArrayByType", GetFormArrayByType, true);
+		//a_vm.BindNativeMethod("Lighthouse", "GetFormArrayByType", GetFormArrayByType, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetContainerFlags", GetContainerFlags, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetFormByEditorID", GetFormByEditorID, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetFormType", GetFormType, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetFormEditorID", GetFormEditorID, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetFormWeight", GetFormWeight, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetParentCOBJs", GetParentCOBJs, true);
 		//a_vm.BindNativeMethod("Lighthouse", "GetMagicEffectAssociatedForm", GetMagicEffectAssociatedForm, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsContainerFlagSet", IsContainerFlagSet, true);
