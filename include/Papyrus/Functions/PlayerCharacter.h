@@ -58,10 +58,36 @@ namespace Papyrus::PlayerCharacter
 		return false;
 	}
 
-	inline bool IsPlayerDetectedByHostile(std::monostate)
+	inline bool IsPlayerDetectedByHostile(IVM& a_vm, VMStackID a_stackID, std::monostate)
 	{
 		// TODO: add error logger
-		return (RE::PlayerCharacter::GetSingleton() != nullptr) ? RE::PlayerCharacter::GetSingleton()->hostileDetection : false;
+		// return (RE::PlayerCharacter::GetSingleton() != nullptr) ? RE::PlayerCharacter::GetSingleton()->hostileDetection : false;
+
+		const auto processLists = RE::ProcessLists::GetSingleton();
+		auto playerRef = RE::PlayerCharacter::GetSingleton();
+
+		if (!processLists) {
+			a_vm.PostError("Unable to obtain list of Actors", a_stackID, Severity::kError);
+			return false;
+		}
+
+		for (const auto& actorHandle : processLists->highActorHandles) {
+			const auto actorPtr = actorHandle.get();
+			
+			if (!actorPtr) {
+				continue;
+			}
+
+			if (actorPtr.get()->IsDead(true)) {
+				continue;
+			}
+			
+			if (actorPtr.get()->GetHostileToActor(playerRef) && actorPtr.get()->RequestDetectionLevel(playerRef) > 0) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	inline bool IsThirdPersonModelShown(IVM& a_vm, VMStackID a_stackID, std::monostate)
@@ -76,8 +102,8 @@ namespace Papyrus::PlayerCharacter
 
 	inline void TogglePipBoyLight(IVM& a_vm, VMStackID a_stackID, std::monostate)
 	{
-		if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
-			player->TogglePipBoyLight();
+		if (const auto playerRef = RE::PlayerCharacter::GetSingleton(); playerRef) {
+			playerRef->TogglePipBoyLight(!playerRef->IsPipboyLightOn());
 			return;
 		}
 
