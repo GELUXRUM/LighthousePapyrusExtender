@@ -43,6 +43,25 @@ namespace Papyrus::Actor
 		return false;
 	}
 
+	inline void DrinkPotion(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor,
+		RE::AlchemyItem* a_alchemyItem)
+	{
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		if (!a_alchemyItem) {
+			a_vm.PostError("AlchemyItem is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		a_actor->DrinkPotion(a_alchemyItem, 0);
+		
+		return;
+	}
+
 	inline void ExitCover(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::Actor* a_actor)
 	{
@@ -481,6 +500,65 @@ namespace Papyrus::Actor
 		return result;
 	}
 
+	inline std::vector<RE::Actor*> GetHostileActorsInRange(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::Actor* a_actor,
+		int a_maxDistance,
+		bool a_includePlayer)
+	{
+		std::vector<RE::Actor*> result;
+
+		if (!a_actor) {
+			a_vm.PostError("Actor is None", a_stackID, Severity::kError);
+			return result;
+		}
+
+		auto originPos = a_actor->GetPosition();
+
+		const auto processLists = RE::ProcessLists::GetSingleton();
+		if (!processLists) {
+			a_vm.PostError("Unable to obtain list of Actors", a_stackID, Severity::kError);
+			return result;
+		}
+		
+		if (a_includePlayer) {
+			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+			if (a_actor == player) {
+				result.push_back(player);
+			} else if (a_actor->GetHostileToActor(player)) {
+				if (originPos.GetDistance(player->GetPosition()) <= a_maxDistance) {
+					result.push_back(player);
+				}
+			}
+		}
+
+		for (const auto& actorHandle : processLists->highActorHandles) {
+			const auto actorPtr = actorHandle.get();
+			const auto currentActor = actorPtr.get();
+
+			if (!currentActor) {
+				continue;
+			}
+
+			if (currentActor == a_actor) {
+				continue;
+			}
+
+			if (currentActor->IsDead(true)) {
+				continue;
+			}
+
+			if (currentActor->GetHostileToActor(a_actor) == false) {
+				continue;
+			}
+
+			if (originPos.GetDistance(currentActor->GetPosition()) <= a_maxDistance) {
+					result.push_back(currentActor);
+			}
+		}
+
+		return result;
+	}
+
 	inline std::int32_t GetKnockState(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::Actor* a_actor)
 	{
@@ -888,7 +966,10 @@ namespace Papyrus::Actor
 		RE::EquippedWeaponData* weaponData = (RE::EquippedWeaponData*)equippedWeapon.data.get();
 
 		if (equippedWeapon.equipIndex.index == 0 && weaponData && weaponInstance) {
-			return weaponInstance->keywords->HasKeyword(a_keyword);
+			if (weaponInstance->keywords) {
+				return weaponInstance->keywords->HasKeyword(a_keyword);
+			}
+			a_vm.PostError("Instance Keywords are None", a_stackID, Severity::kError);
 		}
 
 		return false;
@@ -1111,6 +1192,7 @@ namespace Papyrus::Actor
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "AreHostileActorsInRange", AreHostileActorsInRange, true);
+		a_vm.BindNativeMethod("Lighthouse", "DrinkPotion", DrinkPotion, true);
 		a_vm.BindNativeMethod("Lighthouse", "ExitCover", ExitCover, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetActiveEffects", GetActiveEffects, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetActorFactionsFromList", GetActorFactionsFromList, true);
@@ -1129,6 +1211,7 @@ namespace Papyrus::Actor
 		a_vm.BindNativeMethod("Lighthouse", "GetHighActorsHostileToActor", GetHighActorsHostileToActor, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetHighActorsInCombat", GetHighActorsInCombat, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetHighDeadActors", GetHighDeadActors, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetHostileActorsInRange", GetHostileActorsInRange, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetKnockState", GetKnockState, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetLifeState", GetLifeState, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetOffersServices", GetOffersServices, true);
