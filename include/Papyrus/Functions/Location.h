@@ -4,10 +4,10 @@ namespace Papyrus::Location
 {
 	/*
 	inline void AddKeywordToLocation(IVM& a_vm, VMStackID a_stackID, std::monostate,
-		RE::BGSLocation* a_Location,
+		RE::BGSLocation* a_location,
 		RE::BGSKeyword* a_keyword)
 	{
-		if (!a_Location) {
+		if (!a_location) {
 			a_vm.PostError("Location is None", a_stackID, Severity::kError);
 			return;
 		}
@@ -17,8 +17,8 @@ namespace Papyrus::Location
 			return;
 		}
 
-		if (a_Location->HasKeyword(a_keyword) == false) {
-			a_Location->AddKeyword(a_keyword);
+		if (a_location->HasKeyword(a_keyword) == false) {
+			a_location->AddKeyword(a_keyword);
 		}
 	}
 	*/
@@ -43,10 +43,22 @@ namespace Papyrus::Location
 		return result;
 	}
 
+	inline std::string GetLocationName(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::BGSLocation* a_location)
+	{
+		if (!a_location) {
+			a_vm.PostError("Location is None", a_stackID, Severity::kError);
+			return "";
+		}
+
+		return a_location->fullName.c_str();
+	}
+
 	inline void Bind(IVM& a_vm)
 	{
 		//a_vm.BindNativeMethod("Lighthouse", "AddKeywordToLocation", AddKeywordToLocation, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetChildLocations", GetChildLocations, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetLocationName", GetLocationName, true);
 
 		logger::info("Location functions registered.");
 	}
