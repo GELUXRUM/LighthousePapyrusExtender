@@ -321,28 +321,29 @@ namespace Papyrus::ObjectReference
 		return result;
 	}
 
-	/* IIRC doesn't work
-	inline std::vector<RE::TESForm*> GetQuestItems(IVM& a_vm, VMStackID a_stackID, std::monostate,
-		RE::TESObjectREFR* a_ref)
+	inline std::string GetMapMarkerName(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESObjectREFR* a_mapMarker)
 	{
-		std::vector<RE::TESForm*> result;
-
-		if (!a_ref) {
+		if (!a_mapMarker) {
 			a_vm.PostError("Ref is None", a_stackID, Severity::kError);
-			return result;
-		}
-		
-		auto invData = a_ref->inventoryList->data;
-		
-		for (auto currentItem : invData) {
-			if (currentItem.IsQuestObject(static_cast<std::uint32_t>(currentItem.GetStackCount()))) {
-				result.push_back(RE::TESForm::GetFormByID(currentItem.object->formID));
-			}
+			return "";
 		}
 
-		return result;
+		if (const auto player = RE::PlayerCharacter::GetSingleton(); player) {
+			RE::BSTArray<RE::ObjectRefHandle> mapMarkerHandles = player->currentMapMarkers;
+			for (auto currentMapMarker : mapMarkerHandles) {
+				if (currentMapMarker == a_mapMarker->GetHandle()) {
+					auto extraMapMarker = a_mapMarker->extraList->GetByType<RE::ExtraMapMarker>();
+					return extraMapMarker->mapMarkerData->fullName.c_str();
+				}
+			}
+
+			a_vm.PostError("Ref is not a map marker", a_stackID, Severity::kError);
+			return "";
+		}
+
+		return "";
 	}
-	*/
 
 	inline float GetWeightInContainer(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESObjectREFR* a_ref)
@@ -374,6 +375,7 @@ namespace Papyrus::ObjectReference
 			a_vm.PostError("Ref is None", a_stackID, Severity::kError);
 			return false;
 		}
+
 		if (!a_door) {
 			a_vm.PostError("Destination Ref is None", a_stackID, Severity::kError);
 			return false;
@@ -404,6 +406,27 @@ namespace Papyrus::ObjectReference
 		}
 
 		a_ref->extraList->SetHealthPercent(a_healthPerc);
+
+		return;
+	}
+
+	inline void SetKey(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESObjectREFR* a_ref,
+		RE::TESKey* a_key)
+	{
+		if (!a_ref) {
+			a_vm.PostError("Ref is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		if (!a_key) {
+			a_vm.PostError("Key is None", a_stackID, Severity::kError);
+			return;
+		}
+
+		auto extraLockData = a_ref->extraList.get()->GetByType<RE::ExtraLock>();
+
+		extraLockData->lock->key = a_key;
 
 		return;
 	}
@@ -460,11 +483,13 @@ namespace Papyrus::ObjectReference
 		a_vm.BindNativeMethod("Lighthouse", "GetClosestActorFromRef", GetClosestActorFromRef, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetDoorDestination", GetDoorDestination, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetInventoryItemsAsArray", GetInventoryItemsAsArray, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetMapMarkerName", GetMapMarkerName, true);
 		//a_vm.BindNativeMethod("Lighthouse", "GetQuestItems", GetQuestItems, true);
 		a_vm.BindNativeMethod("Lighthouse", "GetWeightInContainer", GetWeightInContainer, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsInWater", IsInWater, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetDoorDestination", SetDoorDestination, true);
 		a_vm.BindNativeMethod("Lighthouse", "SetHealthPercent", SetHealthPercent, true);
+		a_vm.BindNativeMethod("Lighthouse", "SetKey", SetKey, true);
 		//a_vm.BindNativeMethod("Lighthouse", "SortLoadedActorsByDistanceToRef", SortLoadedActorsByDistanceToRef, true);
 
 		logger::info("ObjectReference functions registered.");
