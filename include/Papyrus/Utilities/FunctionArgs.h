@@ -52,7 +52,7 @@ namespace Papyrus
 				vm(a_vm)
 			{}
 			
-			/* idk what repo GetArrayCopy() is from. pls lmk if find it
+			/*
 			bool operator()(RE::BSScrapArray<RE::BSScript::Variable>& a_args)
 			{
 				args->GetArrayCopy(a_args, *vm);
