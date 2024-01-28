@@ -28,7 +28,7 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* a
 
 	a_info->infoVersion = F4SE::PluginInfo::kVersion;
 	a_info->name = "LighthousePapyrusExtender";
-	a_info->version = 7;
+	a_info->version = 16;
 
 	if (a_f4se->IsEditor()) {
 		logger::critical("loaded in editor");
