@@ -14,6 +14,17 @@ namespace Papyrus::Book
 		return player->currHolotape;
 	}
 
+	inline RE::BGSMaterialSwap* GetBookMaterialSwap(IVM& a_vm, VMStackID a_stackID, std::monostate,
+		RE::TESObjectBOOK* a_book)
+	{
+		if (!a_book) {
+			a_vm.PostError("Book is None", a_stackID, Severity::kError);
+			return nullptr;
+		}
+
+		return a_book->swapForm ? a_book->swapForm : nullptr;
+	}
+
 	inline bool IsHolotapePlaying(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::BGSNote* a_holotape)
 	{
@@ -98,6 +109,7 @@ namespace Papyrus::Book
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "GetCurrentHolotape", GetCurrentHolotape, true);
+		a_vm.BindNativeMethod("Lighthouse", "GetBookMaterialSwap", GetBookMaterialSwap, true);
 		a_vm.BindNativeMethod("Lighthouse", "IsHolotapePlaying", IsHolotapePlaying, true);
 		a_vm.BindNativeMethod("Lighthouse", "PauseHolotape", PauseHolotape, true);
 		a_vm.BindNativeMethod("Lighthouse", "PlayHolotape", PlayHolotape, true);
