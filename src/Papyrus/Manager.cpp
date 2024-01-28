@@ -56,16 +56,16 @@ namespace Papyrus
 		Hazard::Bind(*a_vm);
 		Keyword::Bind(*a_vm);
 		LeveledList::Bind(*a_vm);
-		//Light::Bind(*a_vm);
+		Light::Bind(*a_vm);
 		Location::Bind(*a_vm);
 		Math::Bind(*a_vm);
 		ObjectReference::Bind(*a_vm);
 		PlayerCharacter::Bind(*a_vm);
 		Projectile::Bind(*a_vm);
 		String::Bind(*a_vm);
-		// UI::Bind(*a_vm);
+		UI::Bind(*a_vm);
 		VATS::Bind(*a_vm);
-		// Weapon::Bind(*a_vm);
+		//Weapon::Bind(*a_vm);
 		Weather::Bind(*a_vm);
 
 		return true;
