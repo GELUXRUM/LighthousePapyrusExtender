@@ -103,6 +103,59 @@ namespace Papyrus::String
 		return lowercaseStr;
 	}
 
+	inline bool IncludesSubstring(std::monostate,
+		const std::string a_string,
+		const std::string a_substring,
+		bool a_caseSensitive)
+	{
+		if (!a_caseSensitive) {
+			std::string lowerString = ToLower({}, a_string);
+			std::string lowerSubstring = ToLower({}, a_substring);
+
+			return lowerString.find(lowerSubstring) != std::string::npos;
+		}
+
+		return a_string.find(a_substring) != std::string::npos;
+	}
+
+	inline bool IncludesPrefix(std::monostate,
+		const std::string a_string,
+		const std::string a_prefix,
+		bool a_caseSensitive)
+	{
+		if (!a_caseSensitive) {
+			std::string lowerString = ToLower({}, a_string);
+			std::string lowerPrefix = ToLower({}, a_prefix);
+
+			return lowerString.compare(0, lowerPrefix.length(), lowerPrefix) == 0;
+		}
+
+		return a_string.compare(0, a_prefix.length(), a_prefix) == 0;
+	}
+
+	inline bool IncludesSuffix(std::monostate,
+		const std::string a_string,
+		const std::string a_suffix,
+		bool a_caseSensitive)
+	{
+		if (!a_caseSensitive) {
+			std::string lowerString = ToLower({}, a_string);
+			std::string lowerSuffix = ToLower({}, a_suffix);
+
+			if (lowerSuffix.length() > lowerString.length()) {
+				return false;
+			}
+
+			return lowerString.compare(lowerString.length() - lowerSuffix.length(), lowerSuffix.length(), lowerSuffix) == 0;
+		}
+
+		if (a_suffix.length() > a_string.length()) {
+			return false;
+		}
+
+		return a_string.compare(a_string.length() - a_suffix.length(), a_suffix.length(), a_suffix) == 0;
+	}
+
 	std::string ToUpper(std::monostate,
 		const std::string a_str)
 	{
@@ -120,6 +173,9 @@ namespace Papyrus::String
 	inline void Bind(IVM& a_vm)
 	{
 		a_vm.BindNativeMethod("Lighthouse", "HexToInt", HexToInt, true);
+		a_vm.BindNativeMethod("Lighthouse", "IncludesPrefix", IncludesPrefix, true);
+		a_vm.BindNativeMethod("Lighthouse", "IncludesSubstring", IncludesSubstring, true);
+		a_vm.BindNativeMethod("Lighthouse", "IncludesSuffix", IncludesSuffix, true);
 		a_vm.BindNativeMethod("Lighthouse", "IntToBin", IntToBin, true);
 		a_vm.BindNativeMethod("Lighthouse", "IntToHex", IntToHex, true);
 		a_vm.BindNativeMethod("Lighthouse", "StringToInt", StringToInt, true);
