@@ -78,7 +78,7 @@ namespace Papyrus::Form
 		return a_form->GetFormEditorID();
 	}
 
-	float GetFormWeight(IVM& a_vm, VMStackID a_stackID, std::monostate,
+	inline float GetFormWeight(IVM& a_vm, VMStackID a_stackID, std::monostate,
 		RE::TESForm* a_form)
 	{
 		if (!a_form) {
